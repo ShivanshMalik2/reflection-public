@@ -65,6 +65,7 @@ def sendGETEndpointRequests(endpoint, index, auth_cookie, thread_id):
     count = 0
     url = ""
     print("thread id: " + str(thread_id) + ":" + str(endpoint))
+    true_params = endpoint.split("?")
     for param in hidden_params:
         count += 1
         param = param.replace("\n", "")
@@ -126,7 +127,7 @@ def sendGETEndpointRequests(endpoint, index, auth_cookie, thread_id):
             content = response.content
             if str(content).find("advancedsearch2.") > 0:
                 return
-            analyseGETRequests(url, str(content), index, auth_cookie)
+            analyseGETRequests(url, str(content), index, auth_cookie, true_params)
             if ThreadedStart.collect_input_types != "" and ThreadedStart.hidden_collected_index[index] == 'false':
                 ThreadedStart.hidden_collected_index[index] = 'true'
                 print("Collecting...")
@@ -142,10 +143,10 @@ def sendGETEndpointRequests(endpoint, index, auth_cookie, thread_id):
             content = response.content
             if str(content).find("advancedsearch2.") > 0:
                 return
-            analyseGETRequests(url, str(content), index, auth_cookie)
+            analyseGETRequests(url, str(content), index, auth_cookie, true_params)
 
 
-def analyseGETRequests(url, content, index, cookie):
+def analyseGETRequests(url, content, index, cookie, true_params):
     warnings.filterwarnings("ignore")
     global get_last_param
     if "zzxy" in content:
@@ -178,14 +179,24 @@ def analyseGETRequests(url, content, index, cookie):
                                     if "&" in finder:
                                         finder = finder.replace("&", "?")
                                     if not ThreadedStart.verbose:
-                                        writeReflectedParamToFile("[GET REFLECTED PARAM]: " + base_url[0] + finder + poi)
+                                        if ".aspx" in url:
+                                            if content.count("zzxy") > 20:
+                                                break
+                                        if len(true_params) > 1:
+                                            writeReflectedParamToFile("[GET REFLECTED PARAM]: " + base_url[0] + "?" + true_params[1] + finder.replace("?", "&") + poi)
+                                        else:
+                                            writeReflectedParamToFile("[GET REFLECTED PARAM]: " + base_url[0] + finder + poi)
                                         #sendDiscordMessage(("[GET]: " + base_url[0] + finder + poi), parsed_data)
-                                        sendPayloadChars(base_url[0], finder, poi, cookie)
+                                        sendPayloadChars(base_url[0], finder, poi, cookie, true_params)
                                     else:
                                         sendVerboseDiscordMessage(url, (base_url[0] + finder + poi), parsed_data)
                                         writeReflectedParamToFile("[GET REFLECTED PARAM]: " + url)
-                                        writeReflectedParamToFile("[GET REFLECTED PARAM CLEAN URL]: " + base_url[0] + finder + poi)
+                                        if len(true_params) > 1:
+                                            writeReflectedParamToFile("[GET REFLECTED PARAM CLEAN URL]: " + base_url[0] + "?" + true_params[1] + finder.replace("?", "&") + poi)
+                                        else:
+                                            writeReflectedParamToFile("[GET REFLECTED PARAM CLEAN URL]: " + base_url[0] + finder + poi)
                                         writeReflectedParamToFile("[GET REFLECTED CODE SNIPPET]: " + parsed_data)
+                                        sendPayloadChars(base_url[0], finder, poi, cookie, true_params)
                                     break
 
 
@@ -196,6 +207,7 @@ def sendPOSTEndpointRequests(endpoint, index, auth_cookie, thread_id):
     test = []
     vals = {}
     endpoint = endpoint.replace("\n", "")
+    true_params = endpoint.split("?")
     i = 1
     count = 0
     url = ""
@@ -235,7 +247,7 @@ def sendPOSTEndpointRequests(endpoint, index, auth_cookie, thread_id):
             content = response.content
             if str(content).find("advancedsearch2.") > 0:
                 return
-            analysePOSTRequests(endpoint, url, str(content), index, auth_cookie)
+            analysePOSTRequests(endpoint, url, str(content), index, auth_cookie, true_params)
             if ThreadedStart.collect_input_types != "" and ThreadedStart.hidden_collected_index[index] == 'false':
                 ThreadedStart.hidden_collected_index[index] = 'true'
                 print("Collecting...")
@@ -254,10 +266,10 @@ def sendPOSTEndpointRequests(endpoint, index, auth_cookie, thread_id):
             content = response.content
             if str(content).find("advancedsearch2.") > 0:
                 return
-            analysePOSTRequests(endpoint, url, str(content), index, auth_cookie)
+            analysePOSTRequests(endpoint, url, str(content), index, auth_cookie, true_params)
 
 
-def analysePOSTRequests(endpoint, url, content, index, auth_cookie):
+def analysePOSTRequests(endpoint, url, content, index, auth_cookie, true_params):
     warnings.filterwarnings("ignore")
     global post_last_param
     if "zzxy" in content:
@@ -289,14 +301,21 @@ def analysePOSTRequests(endpoint, url, content, index, auth_cookie):
                                     if "&" in finder:
                                         finder = finder.replace("&", "?")
                                     if not ThreadedStart.verbose:
-                                        writeReflectedParamToFile("[POST REFLECTED PARAM]: " + endpoint + finder + poi)
+                                        if ".aspx" in url:
+                                            if content.count("zzxy") > 20:
+                                                break
+                                        if len(true_params) > 1:
+                                            writeReflectedParamToFile("[POST REFLECTED PARAM]: " + endpoint + finder.replace("?", "&") + poi)
+                                        else:
+                                            writeReflectedParamToFile("[POST REFLECTED PARAM]: " + endpoint + finder + poi)
                                         #sendDiscordMessage(("[POST]: " + endpoint + finder + poi), parsed_data)
-                                        sendPayloadChars(endpoint, finder, poi, auth_cookie)
+                                        sendPayloadChars(endpoint, finder, poi, auth_cookie, true_params)
                                     else:
                                         sendVerboseDiscordMessage(url, (endpoint + finder + poi), parsed_data)
                                         writeReflectedParamToFile("[POST REFLECTED PARAM]: " + endpoint)
                                         writeReflectedParamToFile("[POST REFLECTED PARAM CLEAN URL]: " + endpoint + finder + poi)
                                         writeReflectedParamToFile("[POST REFLECTED CODE SNIPPET]: " + parsed_data)
+                                        sendPayloadChars(endpoint, finder, poi, auth_cookie, true_params)
                                     break
 
 
@@ -341,11 +360,18 @@ def testXSS(url):
         writeReflectedParamToFile("[CONFIRMED XSS]: " + url)
 
 
-def sendPayloadChars(base, param, poi, cookie):
+def sendPayloadChars(base, param, poi, cookie, true_params):
     payloads = ['">', "'>", "<>", "</", "<", ">"]
     #xss_payloads = ['"><img src=x>', "'><img src=x>", "<img src=x>", "</script>"]
     for payload in payloads:
         url = base + param + poi + payload
+        if len(true_params) > 1:
+            if true_params[1] in base:
+                url2 = base + "&" + param + "=" + poi + payload
+            else:
+                url2 = base + "?" + true_params[1] + "&" + param + "=" + poi + payload
+        else:
+            url2 = base + "?" + param + "=" + poi + payload
         response = requests.get(url, cookies=cookie)
         content = str(response.content)
         if str(response.status_code) == '403':
@@ -357,17 +383,19 @@ def sendPayloadChars(base, param, poi, cookie):
             content = str(response.content)
             if (poi + payload) in content:
                 parsed_data = str(content[int(content.find(poi+payload) - 100):int(content.find(poi+payload)) + 100])
-                print("[XSS POST]: " + url)
-                writeReflectedParamToFile("[XSS POST]: " + url)
-                sendDiscordMessage("[XSS POST]: " + url, parsed_data)
+                print("[XSS POST]: " + url2)
+                writeReflectedParamToFile("[XSS POST]: " + url2)
+                sendDiscordMessage("[XSS POST]: " + url2, parsed_data)
                 #print("[XSS DATA]: " + parsed_data)
                 #checkXSSPayload("post", xss_payloads, (base + param + poi), cookie)
                 break
         elif (poi + payload) in content:
-            print("[XSS GET]: " + url)
+            url2 = url2.replace("??", "?")
+            url2 = url2.replace("==", "=")
+            print("[XSS GET]: " + url2)
             parsed_data = str(content[int(content.find(poi + payload) - 100):int(content.find(poi + payload)) + 100])
-            writeReflectedParamToFile("[XSS GET]: " + url)
-            sendDiscordMessage("[XSS GET]: " + url, parsed_data)
+            writeReflectedParamToFile("[XSS GET]: " + url2)
+            sendDiscordMessage("[XSS GET]: " + url2, parsed_data)
             #print("[XSS DATA]: " + parsed_data)
             #checkXSSPayload("get", xss_payloads, (base + param + poi), cookie)
             break
@@ -380,9 +408,9 @@ def sendPayloadChars(base, param, poi, cookie):
             content = str(response.content)
             if (poi + payload) in content:
                 parsed_data = str(content[int(content.find(poi + payload) - 100):int(content.find(poi + payload)) + 100])
-                print("[XSS POST]: " + url)
-                writeReflectedParamToFile("[XSS POST]: " + url)
-                sendDiscordMessage("[XSS POST]: " + url, parsed_data)
+                print("[XSS POST]: " + url2)
+                writeReflectedParamToFile("[XSS POST]: " + url2)
+                sendDiscordMessage("[XSS POST]: " + url2, parsed_data)
                 #print("[XSS DATA]: " + parsed_data)
                 #checkXSSPayload("post", xss_payloads, (base + param + poi), cookie)
                 break
