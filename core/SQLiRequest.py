@@ -22,7 +22,7 @@ hidden_params = []
 def sendDiscordMessage(message, description_message):
     if ThreadedStart.discord_hook != "":
         hook = DiscordWebhook(url=ThreadedStart.discord_hook)
-        embed = DiscordEmbed(title='[POTENCIAL SQLI]', description=description_message, color="1a1a1a")
+        embed = DiscordEmbed(title='[POTENTIAL SQLI]', description=description_message, color="1a1a1a")
         hook.add_embed(embed)
         embed.add_embed_field(name='URL:', value=message)
         hook.execute()
@@ -90,7 +90,7 @@ def sql_error_detector(endpoint, endpoint_index, auth_cookie):
 
                             if vulnerable:
                                 with open("results.sqli.txt", "a") as sqli_file:
-                                    sqli_file.write("[POTENCIAL SQLI] " + endpoint + "?" + x + "=" + payload + " --> " + regex + "\n")
+                                    sqli_file.write("[POTENTIAL SQLI] " + endpoint + "?" + x + "=" + payload + " --> " + regex + "\n")
                                 return True
 
                 i = 0
