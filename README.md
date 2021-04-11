@@ -4,7 +4,7 @@
 
 Reflection was created with the main purpose to be fast and a reliable tool to add to your toolbox. It lets you find secret parameters and with this, quickly test for a potential **XSS** , **SQLI**, or **SSRF**. Reminder, while it can be a great tool and already proved itself with some great results, nothing is perfect and work was made to minimize false positives since the beginning so if you find an issue or have any ideas on how we can minimize this, even more, we would be more then happy to take a look :)
 
-![ggggggg](https://user-images.githubusercontent.com/60802176/114290608-c19d5a00-9a78-11eb-873c-0585ea2e433a.gif)
+![tool_preview](https://user-images.githubusercontent.com/60802176/114290735-9bc48500-9a79-11eb-8bf4-87e8707b5c32.gif)
 <img align="center" src="https://i.ibb.co/Yf0bw1c/sshhhhhh.png">
 
 
